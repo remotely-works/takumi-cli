@@ -1,0 +1,8 @@
+/* What browsers give html documents and takumi's element presets do not. The
+   layer keeps these below every unlayered author rule. */
+@layer ua {
+  [align="left"] { text-align: left; }
+  [align="center"] { text-align: center; }
+  [align="right"] { text-align: right; }
+  a[href] { color: #0000ee; text-decoration: underline; }
+}

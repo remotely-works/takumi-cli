@@ -1,0 +1,54 @@
+# GoReleaser configuration: https://goreleaser.com/customization/builds/rust/
+# Triggered by .github/workflows/release.yml on every `v*` tag.
+version: 2
+
+project_name: takumi-cli
+
+before:
+  hooks:
+    # Fail fast if the lockfile is stale rather than half-way through the darwin build.
+    - cargo fetch --locked
+
+builds:
+  - id: takumi-cli
+    builder: rust
+    binary: takumi-cli
+    # cargo-zigbuild cross compiles both targets from the linux runner, including
+    # the C in libwebp-sys, so no macOS runner is needed.
+    tool: cargo
+    command: zigbuild
+    flags:
+      - --release
+      - --locked
+    targets:
+      - x86_64-unknown-linux-gnu
+      - aarch64-apple-darwin
+
+archives:
+  - id: default
+    formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - README.md
+      # Inter is embedded in the binary, so its licence ships alongside it.
+      - fonts/OFL.txt
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  use: github
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^chore:"
+      - "^ci:"
+
+release:
+  github:
+    owner: remotely-works
+    name: takumi-cli
+  draft: false
+  prerelease: auto
+  mode: replace
